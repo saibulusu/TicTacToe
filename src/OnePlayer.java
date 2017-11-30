@@ -63,52 +63,228 @@ public class OnePlayer {
 		return false;
 	}
 
-	public static int[] rowcolconvert(String input) {
-		char ROW = input.charAt(0);
-		char COL = input.charAt(1);
-		int row;
-		int col;
-		switch (ROW) {
+	public static String computeBestMove(int[][] table) {
+		int[][] board = new int[3][3];
 
-		case 't':
-			row = 0;
+		int zeroCount = 0;
+
+		for (int r = 0; r < 3; r++) {
+			for (int c = 0; c < 3; c++) {
+				board[r][c] = table[r][c];
+				if (board[r][c] == 0)
+					zeroCount++;
+			}
+		}
+
+		int rAnswer = -1;
+		int cAnswer = -1;
+
+		if (zeroCount == 2) {
+
+			int firstR = 0;
+			int firstC = 0;
+
+			for (int r = 0; r < 3; r++) {
+				for (int c = 0; c < 3; c++) {
+					if (board[r][c] == 0)
+						board[r][c] = 2;
+					if (checkWinningCombos(board)) {
+						rAnswer = r;
+						cAnswer = c;
+					}
+					board[r][c] = 0;
+					firstR = r;
+					firstC = c;
+				}
+			}
+
+			if (rAnswer == -1) {
+				for (int r = 0; r < 3; r++) {
+					for (int c = 0; c < 3; c++) {
+						if (rAnswer != -1 && board[r][c] == 0)
+							board[r][c] = 1;
+						if (checkWinningCombos(board)) {
+							rAnswer = r;
+							cAnswer = c;
+						}
+					}
+				}
+			}
+
+			if (rAnswer == -1) {
+				rAnswer = firstR;
+				cAnswer = firstC;
+			}
+		} else if (zeroCount == 8) {
+			for (int r = 0; r < 3; r++) {
+				for (int c = 0; c < 3; c++) {
+					if (board[r][c] == 1) {
+						if (r == 0 && c == 0) { // corners
+							rAnswer = 1;
+							cAnswer = 2;
+						} else if (r == 0 && c == 2) {
+							rAnswer = 1;
+							cAnswer = 0;
+						} else if (r == 2 && c == 0) {
+							rAnswer = 1;
+							cAnswer = 2;
+						} else if (r == 2 && c == 2) {
+							rAnswer = 1;
+							cAnswer = 0;
+						} else if (r == 0 && c == 1) { // side
+							rAnswer = 1;
+							cAnswer = 1;
+						} else if (r == 1) {
+							if (c != 1) {
+								rAnswer = 1;
+								cAnswer = 1;
+							}
+						} else if (r == 2 && c == 1) {
+							rAnswer = 1;
+							cAnswer = 1;
+						} else if (r == 1 && c == 1) { // middle
+							rAnswer = 0;
+							cAnswer = 0;
+						}
+					}
+				}
+			}
+		} else if (zeroCount == 4) {
+			for (int r = 0; r < 3; r++) {
+				for (int c = 0; c < 3; c++) {
+					if (board[r][c] == 0)
+						board[r][c] = 2;
+					if (checkWinningCombos(board)) {
+						rAnswer = r;
+						cAnswer = c;
+					}
+					board[r][c] = 0;
+				}
+			}
+
+			if (rAnswer == -1) {
+				for (int r = 0; r < 3; r++) {
+					for (int c = 0; c < 3; c++) {
+						if (board[r][c] == 0)
+							board[r][c] = 1;
+						if (checkWinningCombos(board)) {
+							rAnswer = r;
+							cAnswer = c;
+							System.out.println("testing point");
+						}
+						board[r][c] = 0;
+					}
+				}
+			}
+
+			if (rAnswer == -1) {
+				rAnswer = 1;
+				cAnswer = 1;
+				System.out.println("testing point");
+			}
+		} else if (zeroCount == 6) {
+			for (int r = 0; r < 3; r++) {
+				for (int c = 0; c < 3; c++) {
+					if (board[r][c] == 0)
+						board[r][c] = 2;
+					if (checkWinningCombos(board)) {
+						rAnswer = r;
+						cAnswer = c;
+					}
+					board[r][c] = 0;
+				}
+			}
+
+			if (rAnswer == -1) {
+				for (int r = 0; r < 3; r++) {
+					for (int c = 0; c < 3; c++) {
+						if (board[r][c] == 0)
+							board[r][c] = 1;
+						if (checkWinningCombos(board)) {
+							rAnswer = r;
+							cAnswer = c;
+						}
+						board[r][c] = 0;
+					}
+				}
+			}
+
+			if (rAnswer == -1) {
+				if (board[1][1] == 0) {
+					rAnswer = 1;
+					cAnswer = 1;
+				} else if (board[0][0] == 1 && board[1][1] == 2 && board[1][2] == 1) {
+					rAnswer = 2;
+					cAnswer = 0;
+				} else if (board[0][2] == 1 && board[1][0] == 1 && board[1][1] == 2) {
+					rAnswer = 2;
+					cAnswer = 2;
+				} else if (board[2][2] == 1 && board[1][0] == 1 && board[1][1] == 2) {
+					rAnswer = 0;
+					cAnswer = 2;
+				} else if (board[1][2] == 1 && board[2][0] == 1 && board[1][1] == 2) {
+					rAnswer = 0;
+					cAnswer = 0;
+				} else if (board[1][0] == 1 && board[1][1] == 2 && board[1][2] == 2) {
+					rAnswer = 0;
+					cAnswer = 0;
+				} else if (board[0][1] == 1 && board[1][0] == 1 && board[1][1] == 2) {
+					rAnswer = 0;
+					cAnswer = 0;
+				} else if (board[0][1] == 1 && board[1][2] == 1 && board[1][1] == 2) {
+					rAnswer = 0;
+					cAnswer = 2;
+				} else if (board[1][2] == 1 && board[2][1] == 1 && board[1][1] == 2) {
+					rAnswer = 2;
+					cAnswer = 2;
+				} else if (board[1][0] == 1 && board[2][1] == 1 && board[1][1] == 2) {
+					rAnswer = 2;
+					cAnswer = 0;
+				}
+			}
+		}
+
+		String move = "";
+
+		switch (rAnswer) {
+
+		case 0:
+			move += "t";
 			break;
 
-		case 'm':
-			row = 1;
+		case 1:
+			move += "m";
 			break;
 
-		case 'b':
-			row = 2;
+		case 2:
+			move += "b";
 			break;
 
 		default:
-			row = 0;
+			move += "t";
 			break;
-
 		}
 
-		switch (COL) {
+		switch (cAnswer) {
 
-		case 'l':
-			col = 0;
+		case 0:
+			move += "l";
 			break;
 
-		case 'm':
-			col = 1;
+		case 1:
+			move += "m";
 			break;
 
-		case 'r':
-			col = 2;
+		case 2:
+			move += "r";
 			break;
 
 		default:
-			col = 0;
+			move += "l";
 			break;
 		}
 
-		int[] arr = { row, col };
-		return arr;
+		return move;
 	}
 
 	public static void play() {
@@ -123,9 +299,11 @@ public class OnePlayer {
 		}
 
 		// 1 for player 1
-		// 2 for Engine
+		// 2 for AI
 
 		int currentPlayer = 1;
+
+		displayOptions();
 
 		Scanner scan = new Scanner(System.in);
 
@@ -136,13 +314,51 @@ public class OnePlayer {
 		boolean gameOver = false;
 
 		while (!gameOver) {
-
 			if (input.equals("quit")) {
 				gameOver = true;
 			} else {
+				char ROW = input.charAt(0);
+				char COL = input.charAt(1);
+				int row;
+				int col;
+				switch (ROW) {
 
-				int row = rowcolconvert(input)[0];
-				int col = rowcolconvert(input)[1];
+				case 't':
+					row = 0;
+					break;
+
+				case 'm':
+					row = 1;
+					break;
+
+				case 'b':
+					row = 2;
+					break;
+
+				default:
+					row = 0;
+					break;
+
+				}
+
+				switch (COL) {
+
+				case 'l':
+					col = 0;
+					break;
+
+				case 'm':
+					col = 1;
+					break;
+
+				case 'r':
+					col = 2;
+					break;
+
+				default:
+					col = 0;
+					break;
+				}
 
 				if (table[row][col] == 0) {
 					table[row][col] = currentPlayer;
@@ -172,14 +388,13 @@ public class OnePlayer {
 
 			System.out.println("Player " + currentPlayer + "'s turn\n");
 			if (currentPlayer == 2) {
-				Tree tree = new Tree(table);
-				String computeInput = tree.compute(table, currentPlayer);
-				System.out.println(computeInput);
-				input = computeInput.toLowerCase();
+				input = computeBestMove(table);
+				System.out.println(input);
 			} else {
 				input = scan.nextLine().toLowerCase();
 			}
 		}
+
 	}
 
 	public static void main(String[] args) {
