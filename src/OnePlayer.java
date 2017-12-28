@@ -1,10 +1,8 @@
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class OnePlayer {
 
+	// The various options that are available
 	public static void displayOptions() {
 		System.out.println("These are the available commands :");
 		System.out.println("\nquit");
@@ -13,7 +11,9 @@ public class OnePlayer {
 		System.out.println("\nbl (bottom left)   bm (bottom middle)   br (bottom right)");
 	}
 
+	// The current board configuration
 	public static void displayBoard(int[][] table) {
+
 		System.out.println(" " + table[0][0] + " | " + table[0][1] + " | " + table[0][2]);
 		System.out.println("\n " + table[1][0] + " | " + table[1][1] + " | " + table[1][2]);
 		System.out.println("\n " + table[2][0] + " | " + table[2][1] + " | " + table[2][2]);
@@ -21,6 +21,30 @@ public class OnePlayer {
 		System.out.println("");
 	}
 
+	// Convert the given position to String form
+	public static String convertPosition(int row, int col) {
+		String res = "";
+
+		if (row == 0) {
+			res += "t";
+		} else if (row == 1) {
+			res += "m";
+		} else {
+			res += "b";
+		}
+
+		if (col == 0) {
+			res += "l";
+		} else if (col == 1) {
+			res += "m";
+		} else {
+			res += "r";
+		}
+
+		return res;
+	}
+
+	// If the current board is a draw
 	public static boolean checkDraw(int[][] table) {
 		for (int row = 0; row < table.length; row++) {
 			for (int col = 0; col < table[row].length; col++) {
@@ -32,6 +56,7 @@ public class OnePlayer {
 		return true;
 	}
 
+	// Check if the board results in a win
 	public static boolean checkWinningCombos(int[][] table) {
 		if (table[0][0] != 0 && table[0][0] == table[0][1] && table[0][1] == table[0][2]) {
 			return true;
@@ -63,232 +88,163 @@ public class OnePlayer {
 		return false;
 	}
 
-	public static String computeBestMove(int[][] table) {
-		int[][] board = new int[3][3];
-
-		int zeroCount = 0;
-
+	// Check if there is a fork in the board
+	public static boolean checkFork(int[][] table) {
+		int count = 0;
 		for (int r = 0; r < 3; r++) {
 			for (int c = 0; c < 3; c++) {
-				board[r][c] = table[r][c];
-				if (board[r][c] == 0)
-					zeroCount++;
-			}
-		}
-
-		int rAnswer = -1;
-		int cAnswer = -1;
-
-		if (zeroCount == 2) {
-
-			int firstR = 0;
-			int firstC = 0;
-
-			for (int r = 0; r < 3; r++) {
-				for (int c = 0; c < 3; c++) {
-					if (board[r][c] == 0)
-						board[r][c] = 2;
-					if (checkWinningCombos(board)) {
-						rAnswer = r;
-						cAnswer = c;
+				if (table[r][c] == 0) {
+					table[r][c] = 2;
+					if (checkWinningCombos(table)) {
+						count++;
 					}
-					board[r][c] = 0;
-					firstR = r;
-					firstC = c;
-				}
-			}
-
-			if (rAnswer == -1) {
-				for (int r = 0; r < 3; r++) {
-					for (int c = 0; c < 3; c++) {
-						if (rAnswer != -1 && board[r][c] == 0)
-							board[r][c] = 1;
-						if (checkWinningCombos(board)) {
-							rAnswer = r;
-							cAnswer = c;
-						}
-					}
-				}
-			}
-
-			if (rAnswer == -1) {
-				rAnswer = firstR;
-				cAnswer = firstC;
-			}
-		} else if (zeroCount == 8) {
-			for (int r = 0; r < 3; r++) {
-				for (int c = 0; c < 3; c++) {
-					if (board[r][c] == 1) {
-						if (r == 0 && c == 0) { // corners
-							rAnswer = 1;
-							cAnswer = 2;
-						} else if (r == 0 && c == 2) {
-							rAnswer = 1;
-							cAnswer = 0;
-						} else if (r == 2 && c == 0) {
-							rAnswer = 1;
-							cAnswer = 2;
-						} else if (r == 2 && c == 2) {
-							rAnswer = 1;
-							cAnswer = 0;
-						} else if (r == 0 && c == 1) { // side
-							rAnswer = 1;
-							cAnswer = 1;
-						} else if (r == 1) {
-							if (c != 1) {
-								rAnswer = 1;
-								cAnswer = 1;
-							}
-						} else if (r == 2 && c == 1) {
-							rAnswer = 1;
-							cAnswer = 1;
-						} else if (r == 1 && c == 1) { // middle
-							rAnswer = 0;
-							cAnswer = 0;
-						}
-					}
-				}
-			}
-		} else if (zeroCount == 4) {
-			for (int r = 0; r < 3; r++) {
-				for (int c = 0; c < 3; c++) {
-					if (board[r][c] == 0)
-						board[r][c] = 2;
-					if (checkWinningCombos(board)) {
-						rAnswer = r;
-						cAnswer = c;
-					}
-					board[r][c] = 0;
-				}
-			}
-
-			if (rAnswer == -1) {
-				for (int r = 0; r < 3; r++) {
-					for (int c = 0; c < 3; c++) {
-						if (board[r][c] == 0)
-							board[r][c] = 1;
-						if (checkWinningCombos(board)) {
-							rAnswer = r;
-							cAnswer = c;
-							System.out.println("testing point");
-						}
-						board[r][c] = 0;
-					}
-				}
-			}
-
-			if (rAnswer == -1) {
-				rAnswer = 1;
-				cAnswer = 1;
-				System.out.println("testing point");
-			}
-		} else if (zeroCount == 6) {
-			for (int r = 0; r < 3; r++) {
-				for (int c = 0; c < 3; c++) {
-					if (board[r][c] == 0)
-						board[r][c] = 2;
-					if (checkWinningCombos(board)) {
-						rAnswer = r;
-						cAnswer = c;
-					}
-					board[r][c] = 0;
-				}
-			}
-
-			if (rAnswer == -1) {
-				for (int r = 0; r < 3; r++) {
-					for (int c = 0; c < 3; c++) {
-						if (board[r][c] == 0)
-							board[r][c] = 1;
-						if (checkWinningCombos(board)) {
-							rAnswer = r;
-							cAnswer = c;
-						}
-						board[r][c] = 0;
-					}
-				}
-			}
-
-			if (rAnswer == -1) {
-				if (board[1][1] == 0) {
-					rAnswer = 1;
-					cAnswer = 1;
-				} else if (board[0][0] == 1 && board[1][1] == 2 && board[1][2] == 1) {
-					rAnswer = 2;
-					cAnswer = 0;
-				} else if (board[0][2] == 1 && board[1][0] == 1 && board[1][1] == 2) {
-					rAnswer = 2;
-					cAnswer = 2;
-				} else if (board[2][2] == 1 && board[1][0] == 1 && board[1][1] == 2) {
-					rAnswer = 0;
-					cAnswer = 2;
-				} else if (board[1][2] == 1 && board[2][0] == 1 && board[1][1] == 2) {
-					rAnswer = 0;
-					cAnswer = 0;
-				} else if (board[1][0] == 1 && board[1][1] == 2 && board[1][2] == 2) {
-					rAnswer = 0;
-					cAnswer = 0;
-				} else if (board[0][1] == 1 && board[1][0] == 1 && board[1][1] == 2) {
-					rAnswer = 0;
-					cAnswer = 0;
-				} else if (board[0][1] == 1 && board[1][2] == 1 && board[1][1] == 2) {
-					rAnswer = 0;
-					cAnswer = 2;
-				} else if (board[1][2] == 1 && board[2][1] == 1 && board[1][1] == 2) {
-					rAnswer = 2;
-					cAnswer = 2;
-				} else if (board[1][0] == 1 && board[2][1] == 1 && board[1][1] == 2) {
-					rAnswer = 2;
-					cAnswer = 0;
+					table[r][c] = 0;
 				}
 			}
 		}
 
-		String move = "";
-
-		switch (rAnswer) {
-
-		case 0:
-			move += "t";
-			break;
-
-		case 1:
-			move += "m";
-			break;
-
-		case 2:
-			move += "b";
-			break;
-
-		default:
-			move += "t";
-			break;
-		}
-
-		switch (cAnswer) {
-
-		case 0:
-			move += "l";
-			break;
-
-		case 1:
-			move += "m";
-			break;
-
-		case 2:
-			move += "r";
-			break;
-
-		default:
-			move += "l";
-			break;
-		}
-
-		return move;
+		return count > 1;
 	}
 
-	public static void play() {
+	// Compute the best possible move at this point in the game
+	public static String computeBestMove(int[][] table) {
+		//If the whole board has only zeroes, then go to the top left corner
+		int zeroCount = 0;
 
+		//check if there is a one move win
+		for (int r = 0; r < 3; r++) {
+			for (int c = 0; c < 3; c++) {
+				if (table[r][c] == 0) {
+					table[r][c] = 2;
+					if (checkWinningCombos(table)) {
+						table[r][c] = 0;
+						return convertPosition(r, c);
+					}
+					table[r][c] = 0;
+					zeroCount++;
+				}
+			}
+		}
+
+		if (zeroCount == 9) {//if the board had 9 zeroes, then go to the top left corner
+			return convertPosition(0, 0);
+		}
+
+		//check if there is a prevention from a one move loss
+		for (int r = 0; r < 3; r++) {
+			for (int c = 0; c < 3; c++) {
+				if (table[r][c] == 0) {
+					table[r][c] = 1;
+					if (checkWinningCombos(table)) {
+						table[r][c] = 0;
+						return convertPosition(r, c);
+					}
+					table[r][c] = 0;
+				}
+			}
+		}
+
+		//check if a potential fork is possible
+		for (int r = 0; r < 3; r++) {
+			for (int c = 0; c < 3; c++) {
+				if (table[r][c] == 0) {
+					table[r][c] = 2;
+					if (checkFork(table)) {
+						table[r][c] = 0;
+						return convertPosition(r, c);
+					}
+					table[r][c] = 0;
+				}
+			}
+		}
+
+		//check if it is possible to prevent a fork in one move
+		for (int r = 0; r < 3; r++) {
+			for (int c = 0; c < 3; c++) {
+				if (table[r][c] == 0) {
+					table[r][c] = 1;
+					if (checkFork(table)) {
+						table[r][c] = 0;
+						return convertPosition(r, c);
+					}
+					table[r][c] = 0;
+				}
+			}
+		}
+
+		//go to the middle if possible
+		if (table[1][1] == 0) {
+			return convertPosition(1, 1);
+		}
+
+		//go to the opposite corner if possible
+		if (table[0][0] == 1 && table[2][2] == 0) {
+			return convertPosition(2, 2);
+		}
+
+		if (table[0][2] == 1 && table[2][0] == 0) {
+			return convertPosition(2, 0);
+		}
+
+		if (table[2][2] == 1 && table[0][0] == 0) {
+			return convertPosition(0, 0);
+		}
+
+		if (table[2][0] == 1 && table[0][2] == 0) {
+			return convertPosition(0, 2);
+		}
+
+		//go to an empty corner if possible
+		if (table[0][0] == 0) {
+			return convertPosition(0, 0);
+		}
+
+		if (table[0][2] == 0) {
+			return convertPosition(0, 2);
+		}
+
+		if (table[2][0] == 0) {
+			return convertPosition(2, 0);
+		}
+
+		if (table[2][2] == 0) {
+			return convertPosition(2, 2);
+		}
+		
+		//go to an empty side if possible
+		if (table[0][1] == 0) {
+			return convertPosition(0, 1);
+		}
+
+		if (table[1][0] == 0) {
+			return convertPosition(1, 0);
+		}
+
+		if (table[1][2] == 0) {
+			return convertPosition(1, 2);
+		}
+
+		if (table[2][1] == 0) {
+			return convertPosition(2, 1);
+		}
+
+		//this loop should never be reached
+		for (int r = 0; r < 3; r++) {
+			for (int c = 0; c < 3; c++) {
+				if (table[r][c] == 0) {
+					//return any available move
+					return convertPosition(r, c);
+				}
+			}
+		}
+
+		//this code should never be reached
+		return convertPosition(0, 0);
+	}
+
+	// Play the game
+	public static void play() {
+		// Create a 3 x 3 board
 		int[][] table = new int[3][3];
 
 		// Initially set everything to 0
@@ -299,106 +255,126 @@ public class OnePlayer {
 		}
 
 		// 1 for player 1
-		// 2 for AI
+		// 2 for computer
 
-		int currentPlayer = 1;
-
-		displayOptions();
+		// In order to allow the computer to go first if necessary,
+		// currentPlayer can start at 2
+		System.out.println("Do you want to go first (yes/no)?");
 
 		Scanner scan = new Scanner(System.in);
 
-		System.out.println("Player 1's turn");
-		displayBoard(table);
+		String answer = scan.nextLine();
 
-		String input = scan.nextLine().toLowerCase();
+		int currentPlayer = 1;
+
+		if (answer.equals("yes")) {
+			currentPlayer = 1;
+		} else {
+			currentPlayer = 2;
+		}
+
+		displayOptions();
+
+		System.out.println("Player " + currentPlayer + "'s turn");
+
+		String input = "";
+
+		// player 1 refers to a human in any case
+		if (currentPlayer == 1) {
+			displayBoard(table);
+			input = scan.nextLine().toLowerCase();
+		} else {
+			input = computeBestMove(table);
+		}
+
 		boolean gameOver = false;
 
+		//while the game is not over, the players can continue to make moves
 		while (!gameOver) {
-			if (input.equals("quit")) {
-				gameOver = true;
-			} else {
-				char ROW = input.charAt(0);
-				char COL = input.charAt(1);
-				int row;
-				int col;
-				switch (ROW) {
+			//convert the given move to coordinate form
+			char ROW = input.charAt(0);
+			char COL = input.charAt(1);
+			int row;
+			int col;
+			switch (ROW) {
 
-				case 't':
-					row = 0;
+			case 't':
+				row = 0;
+				break;
+
+			case 'm':
+				row = 1;
+				break;
+
+			case 'b':
+				row = 2;
+				break;
+
+			default:
+				row = 0;
+				break;
+
+			}
+
+			switch (COL) {
+
+			case 'l':
+				col = 0;
+				break;
+
+			case 'm':
+				col = 1;
+				break;
+
+			case 'r':
+				col = 2;
+				break;
+
+			default:
+				col = 0;
+				break;
+			}
+
+			if (table[row][col] == 0) {//if the desired position is 0, occupy that position
+				table[row][col] = currentPlayer;
+
+				if (checkWinningCombos(table)) {//if there is a winner
+					//end the game
+					gameOver = true;
+					displayBoard(table);
+					System.out.println("Game is over. Player " + currentPlayer + " wins");
+					//break out of the while loop
 					break;
-
-				case 'm':
-					row = 1;
-					break;
-
-				case 'b':
-					row = 2;
-					break;
-
-				default:
-					row = 0;
-					break;
-
 				}
 
-				switch (COL) {
-
-				case 'l':
-					col = 0;
-					break;
-
-				case 'm':
-					col = 1;
-					break;
-
-				case 'r':
-					col = 2;
-					break;
-
-				default:
-					col = 0;
-					break;
-				}
-
-				if (table[row][col] == 0) {
-					table[row][col] = currentPlayer;
-
-					if (checkWinningCombos(table)) {
-						gameOver = true;
-						System.out.println("Game is over. Player " + currentPlayer + " wins");
-						break;
-					}
-
-					if (currentPlayer == 1) {
-						currentPlayer++;
-					} else {
-						currentPlayer--;
-					}
+				//swap the current player
+				if (currentPlayer == 1) {
+					currentPlayer++;
 				} else {
-					System.out.println("Please make a different move");
+					currentPlayer--;
 				}
+			} else {//else make a different move
+				System.out.println("Please make a different move");
 			}
 			System.out.println("");
 			displayBoard(table);
 
-			if (checkDraw(table)) {
+			if (checkDraw(table)) {//if there is a draw, the game is over
 				System.out.println("Draw");
 				break;
 			}
 
+			//get the move of the new current player
 			System.out.println("Player " + currentPlayer + "'s turn\n");
-			if (currentPlayer == 2) {
-				input = computeBestMove(table);
-				System.out.println(input);
-			} else {
+			if (currentPlayer == 1) {
 				input = scan.nextLine().toLowerCase();
+			} else {
+				input = computeBestMove(table);
 			}
 		}
-
 	}
 
 	public static void main(String[] args) {
 		play();
 	}
-
 }
